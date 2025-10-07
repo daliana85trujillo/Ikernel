@@ -21,17 +21,14 @@ func NewIncidenciasController(incidenciaService *service.IncidenciaService) *Inc
 // -------------------------
 // CRUD INCIDENCIAS
 // -------------------------
+
 func (c *IncidenciasController) GetAll(ctx *gin.Context) {
-	incidencias, err := c.incidenciaService.FindAll(ctx)
+	incidencias, err := c.incidenciaService.FindAll(ctx.Request.Context())
 	if err != nil {
-		HandleIncidenciaError(ctx, err)
+		handleIncidenciaError(ctx, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"data": incidencias})
-}
-
-func HandleIncidenciaError(ctx *gin.Context, err error) {
-	panic("unimplemented")
 }
 
 func (c *IncidenciasController) GetById(ctx *gin.Context) {
@@ -40,38 +37,46 @@ func (c *IncidenciasController) GetById(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
 		return
 	}
-	incidencia, err := c.incidenciaService.FindById(ctx, id)
+
+	incidencia, err := c.incidenciaService.FindById(ctx.Request.Context(), id)
 	if err != nil {
-		HandleIncidenciaError(ctx, err)
+		handleIncidenciaError(ctx, err)
 		return
 	}
+
 	ctx.JSON(http.StatusOK, gin.H{"data": incidencia})
 }
 
 func (c *IncidenciasController) Create(ctx *gin.Context) {
 	var incidencia dto.IncidenciaDto
+
 	if err := ctx.ShouldBindJSON(&incidencia); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := c.incidenciaService.Create(ctx, &incidencia); err != nil {
-		HandleIncidenciaError(ctx, err)
+
+	if err := c.incidenciaService.Create(ctx.Request.Context(), &incidencia); err != nil {
+		handleIncidenciaError(ctx, err)
 		return
 	}
-	ctx.JSON(http.StatusCreated, gin.H{"data": incidencia})
+
+	ctx.JSON(http.StatusCreated, gin.H{"message": "Incidencia creada correctamente", "data": incidencia})
 }
 
 func (c *IncidenciasController) Update(ctx *gin.Context) {
 	var incidencia dto.IncidenciaDto
+
 	if err := ctx.ShouldBindJSON(&incidencia); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := c.incidenciaService.Update(ctx, &incidencia); err != nil {
-		HandleIncidenciaError(ctx, err)
+
+	if err := c.incidenciaService.Update(ctx.Request.Context(), &incidencia); err != nil {
+		handleIncidenciaError(ctx, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"data": incidencia})
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Incidencia actualizada correctamente", "data": incidencia})
 }
 
 func (c *IncidenciasController) Delete(ctx *gin.Context) {
@@ -80,9 +85,20 @@ func (c *IncidenciasController) Delete(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
 		return
 	}
-	if err := c.incidenciaService.Delete(ctx, id); err != nil {
-		HandleIncidenciaError(ctx, err)
+
+	if err := c.incidenciaService.Delete(ctx.Request.Context(), id); err != nil {
+		handleIncidenciaError(ctx, err)
 		return
 	}
+
 	ctx.JSON(http.StatusOK, gin.H{"message": "Incidencia eliminada correctamente"})
+}
+
+// -------------------------
+// MANEJO DE ERRORES
+// -------------------------
+func handleIncidenciaError(ctx *gin.Context, err error) {
+	ctx.JSON(http.StatusInternalServerError, gin.H{
+		"error": err.Error(),
+	})
 }

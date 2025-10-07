@@ -5,6 +5,7 @@ import (
 	"Ikernel/internal/model/dto"
 	"Ikernel/internal/model/entity"
 	"context"
+	"errors"
 	"time"
 )
 
@@ -16,8 +17,19 @@ func NewUsuarioService(dao dao.Idao[entity.Usuario, int]) *UsuarioService {
 	return &UsuarioService{dao: dao}
 }
 
-func (s *UsuarioService) ValidarCredenciales(context context.Context, email string, password string) (any, any) {
-	panic("unimplemented")
+func (s *UsuarioService) ValidarCredenciales(ctx context.Context, email string, password string) (*entity.Usuario, error) {
+	usuarios, err := s.dao.FindAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, u := range usuarios {
+		if u.Email == email && u.Password == password {
+			return &u, nil
+		}
+	}
+
+	return nil, errors.New("credenciales inválidas")
 }
 
 func (s *UsuarioService) FindAll(ctx context.Context) ([]entity.Usuario, error) {

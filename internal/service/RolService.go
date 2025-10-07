@@ -1,60 +1,62 @@
 package service
 
 import (
+	"Ikernel/internal/dao"
 	"Ikernel/internal/model/dto"
 	"Ikernel/internal/model/entity"
+	"context"
 
-	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
 type RolService struct {
-	db *gorm.DB
+	db  *gorm.DB
+	dao *dao.RolesDao
 }
 
-func NewRolService(db *gorm.DB) *RolService {
-	return &RolService{db: db}
+func NewRolService(db *gorm.DB, dao *dao.RolesDao) *RolService {
+	return &RolService{db: db, dao: dao}
 }
 
-func (s *RolService) Delete(ctx *gin.Context, id int) any {
-	panic("unimplemented")
+// Crear un rol
+func (s *RolService) Create(ctx context.Context, rolDto *dto.RolesDto) error {
+	return s.dao.Create(ctx, rolDto)
 }
 
-func (s *RolService) Update(ctx *gin.Context, dto *dto.RolesDto) any {
-	panic("unimplemented")
+// Obtener todos los roles
+func (s *RolService) FindAll(ctx context.Context) ([]dto.RolesDto, error) {
+	return s.dao.FindAll(ctx)
 }
 
-func (s *RolService) Create(ctx *gin.Context, dto *dto.RolesDto) any {
-	panic("unimplemented")
+// Buscar rol por ID
+func (s *RolService) FindById(ctx context.Context, id int) (*dto.RolesDto, error) {
+	return s.dao.FindById(ctx, id)
 }
 
-func (s *RolService) FindById(ctx *gin.Context, id int) (any, error) {
-	panic("unimplemented")
+// Actualizar rol
+func (s *RolService) Update(ctx context.Context, rolDto *dto.RolesDto) error {
+	return s.dao.Update(ctx, rolDto)
 }
 
-func (s *RolService) GetAllRoles() (any, any) {
-	panic("unimplemented")
-}
-
-func (s *RolService) FindAll(ctx *gin.Context) (any, any) {
-	panic("unimplemented")
+// Eliminar rol
+func (s *RolService) Delete(ctx context.Context, id int) error {
+	return s.dao.Delete(ctx, id)
 }
 
 // Asignar un rol a un usuario
 func (s *RolService) AsignarRol(usuarioId int, rolId int) error {
-	usuarioRol := entity.Usuario{
-		Id_Usuario: usuarioId,
-		// Replace 'RolId' with the correct field name as defined in entity.Usuario, for example:
-		// Roles: []int{rolId},
+	asignacion := map[string]any{
+		"usuario_id": usuarioId,
+		"rol_id":     rolId,
 	}
-
-	// Evita duplicados
-	return s.db.FirstOrCreate(&usuarioRol, usuarioRol).Error
+	return s.db.Table("usuario_rols").FirstOrCreate(asignacion, asignacion).Error
 }
 
 // Quitar un rol a un usuario
 func (s *RolService) QuitarRol(usuarioId int, rolId int) error {
-	return s.db.Delete(&entity.Usuario{}, "usuario_id = ? AND rol_id = ?", usuarioId, rolId).Error
+	return s.db.Table("usuario_rols").
+		Where("usuario_id = ? AND rol_id = ?", usuarioId, rolId).
+		Delete(nil).Error
 }
 
 // Consultar roles de un usuario
@@ -62,7 +64,7 @@ func (s *RolService) GetRolesDeUsuario(usuarioId int) ([]entity.Rol, error) {
 	var roles []entity.Rol
 	err := s.db.Table("rols").
 		Select("rols.*").
-		Joins("JOIN usuario_rols ur ON ur.rol_id = rols.id").
+		Joins("JOIN usuario_rols ur ON ur.rol_id = rols.id_rol").
 		Where("ur.usuario_id = ?", usuarioId).
 		Scan(&roles).Error
 	return roles, err

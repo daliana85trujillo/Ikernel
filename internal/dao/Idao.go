@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"Ikernel/internal/model/dto"
 	"context"
 )
 
@@ -10,9 +9,8 @@ type Idao[T any, ID comparable] interface {
 	FindById(ctx context.Context, id ID) (*T, error)
 	Create(ctx context.Context, entity *T) error
 	Update(ctx context.Context, entity *T) error
-	Save(ctx context.Context, entity *T) error
 	Delete(ctx context.Context, entity *T) error
 	// New method to find with filters
 
-	FindWithFilters(filter dto.UsuarioFilter) ([]T, error)
+	//FindWithFilters(filter dto.UsuarioFilter) ([]T, error)
 }

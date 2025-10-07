@@ -6,63 +6,62 @@ import (
 	"github.com/gogf/gf/v2/net/ghttp"
 )
 
-func RegisterRoutes(s *ghttp.Server, userCtrl *controller.UsuarioController) {
+// RegisterRoutes registra todas las rutas de la API
+func RegisterRoutes(
+	s *ghttp.Server,
+	userCtrl *controller.UsuarioController,
+	rolCtrl *controller.RolesController,
+	actividadCtrl *controller.ActividadesController,
+	etapaCtrl *controller.EtapasController,
+	incidenciaCtrl *controller.IncidenciasController,
+	proyectoCtrl *controller.ProyectoController,
+) {
+
+	// Rutas de Usuario
 	s.Group("/usuario", func(group *ghttp.RouterGroup) {
-		// Usuarios
-		//group.POST("/login", userCtrl.Login)
-		// group.POST("/loginAdmin", userCtrl.LoginAdmin)
-		group.POST("/create", userCtrl.Create)
-		group.GET("/findAll", userCtrl.GetById)
-		group.GET("/usuario/{id}", userCtrl.GetAll)
-		group.PUT("/update", userCtrl.Update)
-		//group.POST("/filter", userCtrl.Filter)
-	})
-
-	s.Group("/Rol", func(group *ghttp.RouterGroup) {
-		// Roles
-		//group.POST("/login", userCtrl.Login)
-		group.POST("/create", userCtrl.Create)
-		group.GET("/GetAll", userCtrl.GetAll)
-		group.GET("/Rol/{id}", userCtrl.GetById)
-		group.PUT("/update", userCtrl.Update)
-		//group.POST("/filter", rolCtrl.Filter)
-	})
-
-	// Agrega más grupos y rutas según sea necesario
-	s.Group("/Actividad", func(group *ghttp.RouterGroup) {
-		// Actividades
-		group.POST("/create", userCtrl.Create)
-		group.GET("/findAll", userCtrl.GetById)
-		group.GET("/Actividad/{id}", userCtrl.GetById)
-		group.PUT("/update", userCtrl.Update)
-		//group.POST("/filter", userCtrl.Filter)
-	})
-
-	s.Group("/Etapa", func(group *ghttp.RouterGroup) {
-		// Etapas
 		group.POST("/create", userCtrl.Create)
 		group.GET("/findAll", userCtrl.GetAll)
-		group.GET("/Etapa/{id}", userCtrl.GetById)
+		group.GET("/{id}", userCtrl.GetById)
 		group.PUT("/update", userCtrl.Update)
-		//group.POST("/filter", userCtrl.Filter)
 	})
 
-	s.Group("/Incidencia", func(group *ghttp.RouterGroup) {
-		// Incidencias
-		group.POST("/create", userCtrl.Create)
-		group.GET("/findAll", userCtrl.GetAll)
-		group.GET("/Incidencia/{id}", userCtrl.GetById)
-		group.PUT("/update", userCtrl.Update)
-		//group.POST("/filter", userCtrl.Filter)
+	// Rutas de Rol
+	s.Group("/rol", func(group *ghttp.RouterGroup) {
+		group.POST("/create", rolCtrl.Create)
+		group.GET("/findAll", rolCtrl.GetAll)
+		group.GET("/{id}", rolCtrl.GetById)
+		group.PUT("/update", rolCtrl.Update)
 	})
 
-	s.Group("/Proyecto", func(group *ghttp.RouterGroup) {
-		// Proyectos
-		group.POST("/create", userCtrl.Create)
-		group.GET("/findAll", userCtrl.GetAll)
-		group.GET("/Proyecto/{id}", userCtrl.GetById)
-		group.PUT("/update", userCtrl.Update)
-		//group.POST("/filter", userCtrl.Filter)
+	// Rutas de Actividad
+	s.Group("/actividad", func(group *ghttp.RouterGroup) {
+		group.POST("/create", actividadCtrl.Create)
+		group.GET("/findAll", actividadCtrl.GetAll)
+		group.GET("/{id}", actividadCtrl.GetById)
+		group.PUT("/update", actividadCtrl.Update)
 	})
 
+	// Rutas de Etapa
+	s.Group("/etapa", func(group *ghttp.RouterGroup) {
+		group.POST("/create", etapaCtrl.Create)
+		group.GET("/findAll", etapaCtrl.GetAll)
+		group.GET("/{id}", etapaCtrl.GetById)
+		group.PUT("/update", etapaCtrl.Update)
+	})
+
+	// Rutas de Incidencia
+	s.Group("/incidencia", func(group *ghttp.RouterGroup) {
+		group.POST("/create", incidenciaCtrl.Create)
+		group.GET("/findAll", incidenciaCtrl.GetAll)
+		group.GET("/{id}", incidenciaCtrl.GetById)
+		group.PUT("/update", incidenciaCtrl.Update)
+	})
+
+	// Rutas de Proyecto
+	s.Group("/proyecto", func(group *ghttp.RouterGroup) {
+		group.POST("/create", proyectoCtrl.Create)
+		group.GET("/findAll", proyectoCtrl.GetAll)
+		group.GET("/{id}", proyectoCtrl.GetById)
+		group.PUT("/update", proyectoCtrl.Update)
+	})
 }

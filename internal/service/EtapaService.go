@@ -6,22 +6,17 @@ import (
 	"Ikernel/internal/model/entity"
 	"context"
 	"time"
-
-	"github.com/gin-gonic/gin"
 )
 
 type EtapaService struct {
 	dao dao.Idao[entity.Etapa, int]
 }
 
-func (s *EtapaService) FindByProyectoId(ctx *gin.Context, id int) (any, error) {
-	panic("unimplemented")
-}
-
 func NewEtapaService(dao dao.Idao[entity.Etapa, int]) *EtapaService {
 	return &EtapaService{dao: dao}
 }
 
+// Listar todas las etapas
 func (s *EtapaService) FindAll(ctx context.Context) ([]dto.EtapaDto, error) {
 	etapas, err := s.dao.FindAll(ctx)
 	if err != nil {
@@ -36,11 +31,13 @@ func (s *EtapaService) FindAll(ctx context.Context) ([]dto.EtapaDto, error) {
 			Description: e.Description,
 			Start_date:  e.Start_date.Format("2006-01-02"),
 			End_date:    e.End_date.Format("2006-01-02"),
+			State:       e.State,
 		})
 	}
 	return etapasDto, nil
 }
 
+// Obtener etapa por ID
 func (s *EtapaService) GetById(ctx context.Context, id int) (*dto.EtapaDto, error) {
 	e, err := s.dao.FindById(ctx, id)
 	if err != nil {
@@ -56,6 +53,7 @@ func (s *EtapaService) GetById(ctx context.Context, id int) (*dto.EtapaDto, erro
 	}, nil
 }
 
+// Crear etapa
 func (s *EtapaService) Create(ctx context.Context, etapa *dto.EtapaDto) error {
 	startDate, err := time.Parse("2006-01-02", etapa.Start_date)
 	if err != nil {
@@ -76,6 +74,7 @@ func (s *EtapaService) Create(ctx context.Context, etapa *dto.EtapaDto) error {
 	return s.dao.Create(ctx, &entidad)
 }
 
+// Actualizar etapa
 func (s *EtapaService) Update(ctx context.Context, etapa *dto.EtapaDto) error {
 	startDate, err := time.Parse("2006-01-02", etapa.Start_date)
 	if err != nil {
@@ -97,7 +96,7 @@ func (s *EtapaService) Update(ctx context.Context, etapa *dto.EtapaDto) error {
 	return s.dao.Update(ctx, &entidad)
 }
 
+// Eliminar etapa
 func (s *EtapaService) Delete(ctx context.Context, id int) error {
-	s.dao.Delete(ctx, &entity.Etapa{Id: id})
-	return nil
+	return s.dao.Delete(ctx, &entity.Etapa{Id: id})
 }

@@ -1,9 +1,13 @@
 package dao
 
-import "gorm.io/gorm"
+import (
+	"Ikernel/internal/model/entity"
+	"context"
+
+	"gorm.io/gorm"
+)
 
 type EtapaDao struct {
-	// Aquí puedes agregar dependencias como la conexión a la base de datos, etc.
 	db *gorm.DB
 }
 
@@ -11,27 +15,35 @@ func NewEtapaDao(db *gorm.DB) *EtapaDao {
 	return &EtapaDao{db: db}
 }
 
-// Aquí puedes agregar métodos para interactuar con la base de datos, por ejemplo:
-func (e *EtapaDao) FindAll() ([]string, error) {
-	// Lógica para obtener todas las etapas desde la base de datos
-	return []string{"Etapa 1", "Etapa 2", "Etapa 3"}, nil
+// Obtener todas las etapas
+func (e *EtapaDao) FindAll(ctx context.Context) ([]entity.Etapa, error) {
+	var etapas []entity.Etapa
+	if err := e.db.WithContext(ctx).Find(&etapas).Error; err != nil {
+		return nil, err
+	}
+	return etapas, nil
 }
 
-func (e *EtapaDao) Create(etapa string) error {
-	// Lógica para crear una nueva etapa en la base de datos
-	return nil
+// Crear nueva etapa
+func (e *EtapaDao) Create(ctx context.Context, etapa *entity.Etapa) error {
+	return e.db.WithContext(ctx).Create(etapa).Error
 }
 
-func (e *EtapaDao) FindById(id int) (string, error) {
-	// Lógica para obtener una etapa por ID desde la base de datos
-	return "Etapa " + string(rune(id)), nil
+// Buscar por ID
+func (e *EtapaDao) FindById(ctx context.Context, id int) (*entity.Etapa, error) {
+	var etapa entity.Etapa
+	if err := e.db.WithContext(ctx).First(&etapa, id).Error; err != nil {
+		return nil, err
+	}
+	return &etapa, nil
 }
 
-func (e *EtapaDao) Update(id int, etapa string) error {
-	// Lógica para actualizar una etapa existente en la base de datos
-	return nil
+// Actualizar una etapa
+func (e *EtapaDao) Update(ctx context.Context, etapa *entity.Etapa) error {
+	return e.db.WithContext(ctx).Save(etapa).Error
 }
-func (e *EtapaDao) Delete(id int) error {
-	// Lógica para eliminar una etapa por ID desde la base de datos
-	return nil
+
+// Eliminar una etapa
+func (e *EtapaDao) Delete(ctx context.Context, etapa *entity.Etapa) error {
+	return e.db.WithContext(ctx).Delete(etapa).Error
 }

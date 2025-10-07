@@ -27,8 +27,8 @@ func (u *UsuarioDao) Update(ctx context.Context, usuario *entity.Usuario) error 
 }
 
 // Eliminar usuario
-func (u *UsuarioDao) Delete(ctx context.Context, id int) error {
-	return u.db.WithContext(ctx).Delete(&entity.Usuario{}, id).Error
+func (d *UsuarioDao) Delete(ctx context.Context, usuario *entity.Usuario) error {
+	return d.db.WithContext(ctx).Delete(usuario).Error
 }
 
 // Buscar por ID

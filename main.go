@@ -6,27 +6,52 @@ import (
 	"Ikernel/internal/controller"
 	"Ikernel/internal/dao"
 	"Ikernel/internal/service"
+
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/net/ghttp"
 )
 
 func main() {
-
-	// Iniciar el servidor HTTP
+	// Migraciones y conexión a la base de datos
 	db := cmd.Migrate()
-	_ = db
+
+	// Crear instancia del servidor
 	s := g.Server()
 	s.SetPort(8199)
 
-	// Aquí puedes registrar tus controladores y rutas
-	s = ghttp.GetServer()
+	// Inicialización de todos los servicios con los DAOs
+	usuarioService := service.NewUsuarioService(dao.NewUsuarioDao(db))
+	rolService := service.NewRolService(db, dao.NewRolesDao(db))
+	actividadService := service.NewActivityService(dao.NewActividadDao(db))
+	etapaService := service.NewEtapaService(dao.NewEtapaDao(db))
+	incidenciaService := service.NewIncidenciaService(dao.NewIncidenciaDao(db))
+	proyectoService := service.NewProyectoService(dao.NewProyectoDao(db))
 
-	UsuarioService := service.NewUsuarioService(cmd.UsuarioDao(db))
-	userCtrl := controller.NewUsuarioController(UsuarioService)
+	// Inicialización de todos los controladores
+	userCtrl := controller.NewUsuarioController(usuarioService, rolService)
+	rolCtrl := controller.NewRolesController(rolService)
+	actividadCtrl := controller.NewActividadesController(actividadService)
+	etapaCtrl := controller.NewEtapasController(etapaService)
+	incidenciaCtrl := controller.NewIncidenciasController(incidenciaService)
 
-	router.RegisterRoutes(s, userCtrl)
+	// ⚠️ Asegúrate de que tu constructor de ProyectoController reciba estos 4 servicios
+	proyectoCtrl := controller.NewProyectoController(
+		proyectoService,
+		etapaService,
+		usuarioService,
+		actividadService,
+	)
 
-	// Iniciar el servidor
+	// Registro de todas las rutas
+	router.RegisterRoutes(
+		s,
+		userCtrl,
+		rolCtrl,
+		actividadCtrl,
+		etapaCtrl,
+		incidenciaCtrl,
+		proyectoCtrl,
+	)
 
+	// Ejecutar el servidor
 	s.Run()
 }
